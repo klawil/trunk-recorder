@@ -65,26 +65,35 @@ public:
   }
 
   int system_patch_add(System *sys, PatchData patch) {
+    if (m_open == false)
+      return 0;
+
     boost::property_tree::ptree patch_data;
     patch_data.put("sg", patch.sg);
     patch_data.put("ga1", patch.ga1);
     patch_data.put("ga2", patch.ga2);
     patch_data.put("ga3", patch.ga3);
-    patch_data.put("sys", sys->get_sys_id());
+    patch_data.put("sys", sys->get_short_name());
     return send_object(patch_data, "patch_add", "patch");
   }
 
   int system_patch_del(System *sys, PatchData patch) {
+    if (m_open == false)
+      return 0;
+
     boost::property_tree::ptree patch_data;
     patch_data.put("sg", patch.sg);
     patch_data.put("ga1", patch.ga1);
     patch_data.put("ga2", patch.ga2);
     patch_data.put("ga3", patch.ga3);
-    patch_data.put("sys", sys->get_sys_id());
+    patch_data.put("sys", sys->get_short_name());
     return send_object(patch_data, "patch_del", "patch");
   }
 
   int system_adjacent(std::vector<System *> systems) {
+    if (m_open == false)
+      return 0;
+
     boost::property_tree::ptree nodes;
 
     for (std::vector<System *>::iterator it = systems.begin(); it != systems.end(); it++) {
@@ -290,9 +299,9 @@ public:
   }
 
   int send_recorders(std::vector<Recorder *> recorders) {
-
     if (m_open == false)
       return 0;
+
     boost::property_tree::ptree node;
 
     for (std::vector<Recorder *>::iterator it = recorders.begin(); it != recorders.end(); it++) {
@@ -311,18 +320,82 @@ public:
 
   }
 
-  int call_end(Call_Data_t call_info) {
-    if (m_open == false)
-      return 0;
-    return 0;
-    //send_object(call->get_stats(), "call", "call_end");
-  }
-
   int send_recorder(Recorder *recorder) {
     if (m_open == false)
       return 0;
 
     return send_object(recorder->get_stats(), "recorder", "recorder");
+  }
+
+  std::string get_talkgroup_list(System *sys, long talkgroup_num) {
+    std::vector<unsigned long> talkgroup_patches = sys->get_talkgroup_patch(talkgroup_num);
+    std::string patch_string;
+    bool first = true;
+    BOOST_FOREACH (auto& TGID, talkgroup_patches) {
+      if (!first) { patch_string += ","; }
+      first = false;
+      patch_string += std::to_string(TGID);
+    }
+    return patch_string;
+  }
+
+  int unit_registration(System *sys, long source_id) {
+    if (m_open == false)
+      return 0;
+
+    boost::property_tree::ptree unit_registration_data;
+    unit_registration_data.put("source", source_id);
+    unit_registration_data.put("system", sys->get_short_name());
+
+    return send_object(unit_registration_data, "unit_registration", "unit_registration");
+  }
+
+  int unit_deregistration(System *sys, long source_id) {
+    if (m_open == false)
+      return 0;
+
+    boost::property_tree::ptree unit_deregistration_data;
+    unit_deregistration_data.put("source", source_id);
+    unit_deregistration_data.put("system", sys->get_short_name());
+
+    return send_object(unit_deregistration_data, "unit_deregistration", "unit_deregistration");
+  }
+
+  int unit_group_affiliation(System *sys, long source_id, long talkgroup_num) {
+    if (m_open == false)
+      return 0;
+
+    boost::property_tree::ptree unit_group_affiliation_data;
+    unit_group_affiliation_data.put("source", source_id);
+    unit_group_affiliation_data.put("talkgroup", talkgroup_num);
+    unit_group_affiliation_data.put("talkgroup_list", get_talkgroup_list(sys, talkgroup_num));
+    unit_group_affiliation_data.put("system", sys->get_short_name());
+
+    return send_object(unit_group_affiliation_data, "unit_group_affiliation", "unit_group_affiliation");
+  }
+
+  int unit_data_grant(System *sys, long source_id) {
+    if (m_open == false)
+      return 0;
+
+    boost::property_tree::ptree unit_data_grant_data;
+    unit_data_grant_data.put("source", source_id);
+    unit_data_grant_data.put("system", sys->get_short_name());
+
+    return send_object(unit_data_grant_data, "unit_data_grant", "unit_data_grant");
+  }
+
+  int unit_location(System *sys, long source_id, long talkgroup_num) {
+    if (m_open == false)
+      return 0;
+    
+    boost::property_tree::ptree unit_location_data;
+    unit_location_data.put("source", source_id);
+    unit_location_data.put("talkgroup", talkgroup_num);
+    unit_location_data.put("system", sys->get_short_name());
+    unit_location_data.put("talkgroup_list", get_talkgroup_list(sys, talkgroup_num));
+
+    return send_object(unit_location_data, "unit_location", "unit_location");
   }
 
   int send_object(boost::property_tree::ptree data, std::string name, std::string type) {
