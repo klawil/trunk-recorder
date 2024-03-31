@@ -40,6 +40,9 @@ public:
   virtual int setup_sources(std::vector<Source *> sources) { return 0; };
   virtual int setup_config(std::vector<Source *> sources, std::vector<System *> systems) { return 0; };
   virtual int system_rates(std::vector<System *> systems, float timeDiff) { return 0; };
+  virtual int system_adjacent(std::vector<System *> systems) { return 0; };
+  virtual int system_patch_add(System *sys, PatchData patch_data) { return 0; };
+  virtual int system_patch_del(System *sys, PatchData patch_data) { return 0; };
   virtual int unit_registration(System *sys, long source_id) { return 0; };
   virtual int unit_deregistration(System *sys, long source_id) { return 0; };
   virtual int unit_acknowledge_response(System *sys, long source_id) { return 0; };

@@ -64,6 +64,47 @@ public:
     return send_object(nodes, "rates", "rates");
   }
 
+  int system_patch_add(System *sys, PatchData patch) {
+    boost::property_tree::ptree patch_data;
+    patch_data.put("sg", patch.sg);
+    patch_data.put("ga1", patch.ga1);
+    patch_data.put("ga2", patch.ga2);
+    patch_data.put("ga3", patch.ga3);
+    patch_data.put("sys", sys->get_sys_id());
+    return send_object(patch_data, "patch_add", "patch");
+  }
+
+  int system_patch_del(System *sys, PatchData patch) {
+    boost::property_tree::ptree patch_data;
+    patch_data.put("sg", patch.sg);
+    patch_data.put("ga1", patch.ga1);
+    patch_data.put("ga2", patch.ga2);
+    patch_data.put("ga3", patch.ga3);
+    patch_data.put("sys", sys->get_sys_id());
+    return send_object(patch_data, "patch_del", "patch");
+  }
+
+  // int system_adjacent(std::vector<System *> systems) {
+  //   boost::property_tree::ptree nodes;
+
+  //   for (std::vector<System *>::iterator it = systems.begin(); it != systems.end(); it++) {
+  //     System *system = *it;
+  //     boost::property_tree::ptree statuses;
+  //     std::map<std::string, AdjacentStatus> adjacent_statuses = system->get_adjacent_status();
+  //     for (std::map<std::string, AdjacentStatus>::iterator it = adjacent_statuses.begin(); it != adjacent_statuses.end(); it++) {
+  //       boost::property_tree::ptree status;
+  //       status.put("lra", it->second.lra);
+  //       status.put("sys_id", it->second.sys_id);
+  //       status.put("rfss", it->second.rfss);
+  //       status.put("site", it->second.site);
+  //       statuses.push_back(std::make_pair("", status));
+  //     }
+  //     nodes.push_back(std::make_pair("", statuses));
+  //   }
+
+  //   return send_object(nodes, "adjacent", "adjacent");
+  // }
+
   Stat_Socket() : m_open(false), m_done(false), m_config_sent(false) {
     // set up access channels to only log interesting things
     m_client.clear_access_channels(websocketpp::log::alevel::all);

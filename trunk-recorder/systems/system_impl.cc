@@ -1,5 +1,8 @@
 #include "system_impl.h"
 #include "system.h"
+#include "parser.h"
+
+#include "../plugin_manager/plugin_manager.h"
 
 System *System::make(int sys_num) {
   return (System *)new System_impl(sys_num);
@@ -568,7 +571,8 @@ void System_impl::update_active_talkgroup_patches(PatchData patch_data) {
   }
   if (new_flag == true) {
     // TGIDs from the Message were not found in an existing patch, so add them to a new one
-    // BOOST_LOG_TRIVIAL(debug) << "Adding a new patch";
+    BOOST_LOG_TRIVIAL(debug) << "tsbk00\tNew Motorola patch found, \tsg: " << patch_data.sg << "\tga1: " << patch_data.ga1 << "\tga2: " << patch_data.ga2 << "\tga3: " << patch_data.ga3;
+    plugman_system_patch_add(this, patch_data);
     std::map<unsigned long, std::time_t> new_patch;
     if (0 != patch_data.sg) {
       new_patch[patch_data.sg] = update_time;
@@ -587,6 +591,7 @@ void System_impl::update_active_talkgroup_patches(PatchData patch_data) {
 }
 
 void System_impl::delete_talkgroup_patch(PatchData patch_data) {
+  plugman_system_patch_del(this, patch_data);
   BOOST_FOREACH (auto &patch, talkgroup_patches) {
     if (patch.first == patch_data.sg) {
       patch.second.erase(patch_data.ga1);

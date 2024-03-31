@@ -880,7 +880,52 @@ std::vector<TrunkMessage> P25Parser::decode_tsbk(boost::dynamic_bitset<> &tsbk, 
     unsigned long stid = bitset_shift_mask(tsbk, 40, 0xff);
     unsigned long ch1 = bitset_shift_mask(tsbk, 24, 0xffff);
     unsigned long f1 = channel_id_to_frequency(ch1, sys_num);
-    BOOST_LOG_TRIVIAL(debug) << "tsbk3c\tAdjacent Status\t rfid " << std::dec << rfid << " stid " << stid << " ch1 " << ch1 << "(" << channel_id_to_string(ch1, sys_num) << ") ";
+
+    unsigned long lra = bitset_shift_mask(tsbk, 72, 0xff);
+    bool conv_ch = bitset_shift_mask(tsbk, 71, 0x1) == 0x1;
+    bool site_failed = bitset_shift_mask(tsbk, 70, 0x1) == 0x1;
+    bool valid_info = bitset_shift_mask(tsbk, 69, 0x1) == 0x1;
+    bool active_conn = bitset_shift_mask(tsbk, 68, 0x1) == 0x1;
+    unsigned long sys_id = bitset_shift_mask(tsbk, 56, 0xfff);
+    unsigned long rfss = bitset_shift_mask(tsbk, 48, 0xff);
+    unsigned long site = bitset_shift_mask(tsbk, 40, 0xff);
+    unsigned long freq_band = bitset_shift_mask(tsbk, 36, 0xf);
+    unsigned long ch_num = bitset_shift_mask(tsbk, 24, 0xfff);
+    bool composite_ctrl = bitset_shift_mask(tsbk, 16, 0x01) == 0x01;
+    bool no_service_req = bitset_shift_mask(tsbk, 16, 0x02) == 0x02;
+    bool backup_ctrl = bitset_shift_mask(tsbk, 16, 0x04) == 0x04;
+    bool data = bitset_shift_mask(tsbk, 16, 0x10) == 0x10;
+    bool voice = bitset_shift_mask(tsbk, 16, 0x20) == 0x20;
+    bool registration = bitset_shift_mask(tsbk, 16, 0x40) == 0x40;
+    bool authentication = bitset_shift_mask(tsbk, 16, 0x80) == 0x80;
+    BOOST_LOG_TRIVIAL(trace) << "tsbk3c\tAdjacent Status\tLRA " << lra << " CONV_CH " << conv_ch << " FAILED " << site_failed
+      << " VALID " << valid_info << " ACTIVE_CONN " << active_conn << " SYS_ID " << sys_id << " RFSS " << rfss
+      << " SITE " << site << " FREQ_BAND " << freq_band << " CH " << ch_num << " COMP_CTRL " << (composite_ctrl ? "1" : "0")
+      << " NO_SERVICE " << (no_service_req ? "1" : "0") << " BCK_CTRL " << (backup_ctrl ? "1" : "0")
+      << " DATA " << (data ? "1" : "0") << " VOICE " << (voice ? "1" : "0") << " REG " << (registration ? "1" : "0")
+      << " AUTH " << (authentication ? "1" : "0");
+
+    message.message_type = ADJACENT_STATUS;
+    AdjacentStatus adjacent_status;
+    adjacent_status.lra = lra;
+    adjacent_status.sys_id = sys_id;
+    adjacent_status.rfss = rfss;
+    adjacent_status.site = site;
+    adjacent_status.freq_band = freq_band;
+    adjacent_status.ch_num = ch_num;
+    adjacent_status.freq = f1;
+    adjacent_status.conv_ch = conv_ch;
+    adjacent_status.site_failed = site_failed;
+    adjacent_status.valid_info = valid_info;
+    adjacent_status.active_conn = active_conn;
+    adjacent_status.composite_ctrl = composite_ctrl;
+    adjacent_status.no_service_req = no_service_req;
+    adjacent_status.backup_ctrl = backup_ctrl;
+    adjacent_status.supports_data = data;
+    adjacent_status.supports_voice = voice;
+    adjacent_status.supports_registration = registration;
+    adjacent_status.supports_authentication = authentication;
+    message.adjacent_status = adjacent_status;
 
     if (f1) {
       it = channels[stid].find((ch1 >> 12) & 0xf);

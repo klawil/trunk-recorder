@@ -247,6 +247,31 @@ void plugman_system_rates(std::vector<System *> systems, float timeDiff) {
     }
   }
 }
+void plugman_system_adjacent(std::vector<System *> systems) {
+  for (std::vector<Plugin *>::iterator it = plugins.begin(); it != plugins.end(); it++) {
+    Plugin *plugin = *it;
+    if (plugin->state == PLUGIN_RUNNING) {
+      plugin->api->system_adjacent(systems);
+    }
+  }
+}
+
+void plugman_system_patch_add(System *system, PatchData patch_data) {
+  for (std::vector<Plugin *>::iterator it = plugins.begin(); it != plugins.end(); it++) {
+    Plugin *plugin = *it;
+    if (plugin->state == PLUGIN_RUNNING) {
+      plugin->api->system_patch_add(system, patch_data);
+    }
+  }
+}
+void plugman_system_patch_del(System *system, PatchData patch_data) {
+  for (std::vector<Plugin *>::iterator it = plugins.begin(); it != plugins.end(); it++) {
+    Plugin *plugin = *it;
+    if (plugin->state == PLUGIN_RUNNING) {
+      plugin->api->system_patch_del(system, patch_data);
+    }
+  }
+}
 
 void plugman_unit_registration(System *system, long source_id) {
   for (std::vector<Plugin *>::iterator it = plugins.begin(); it != plugins.end(); it++) {
