@@ -166,6 +166,9 @@ public:
   virtual void delete_talkgroup_patch(PatchData f_data) = 0;
   virtual void clear_stale_talkgroup_patches() = 0;
 
+  virtual void adjacent_status(AdjacentStatus adjacent_status) = 0;
+  virtual std::map<std::string, AdjacentStatus> get_adjacent_status() = 0;
+
   virtual bool get_multiSite() = 0;
   virtual void set_multiSite(bool multiSite) = 0;
 

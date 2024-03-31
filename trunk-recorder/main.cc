@@ -727,6 +727,10 @@ void handle_message(std::vector<TrunkMessage> messages, System *sys) {
       unit_answer_request(sys, message.source, message.talkgroup);
       break;
 
+    case ADJACENT_STATUS:
+      sys->adjacent_status(message.adjacent_status);
+      break;
+
     case UNKNOWN:
       break;
     }
@@ -816,6 +820,7 @@ void retune_system(System *sys) {
 void check_message_count(float timeDiff) {
   plugman_setup_config(sources, systems);
   plugman_system_rates(systems, timeDiff);
+  plugman_system_adjacent(systems);
 
   for (std::vector<System *>::iterator it = systems.begin(); it != systems.end(); ++it) {
     System_impl *sys = (System_impl *)*it;
@@ -852,6 +857,7 @@ void check_message_count(float timeDiff) {
       }
     }
     sys->message_count = 0;
+    sys->adjacent_statuses = {};
   }
 }
 

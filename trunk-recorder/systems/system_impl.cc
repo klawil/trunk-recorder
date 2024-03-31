@@ -104,6 +104,7 @@ System_impl::System_impl(int sys_num) {
   retune_attempts = 0;
   message_count = 0;
   decode_rate = 0;
+  adjacent_statuses = {};
   msg_queue = gr::msg_queue::make(100);
 }
 
@@ -636,6 +637,13 @@ void System_impl::clear_stale_talkgroup_patches() {
     }
     BOOST_LOG_TRIVIAL(debug) << "Active Patch of TGIDs" << printstring;
   }
+}
+
+void System_impl::adjacent_status(AdjacentStatus adjacent_status) {
+  adjacent_statuses[std::to_string(adjacent_status.rfss) + "-" + std::to_string(adjacent_status.site)] = adjacent_status;
+}
+std::map<std::string, AdjacentStatus> System_impl::get_adjacent_status() {
+  return adjacent_statuses;
 }
 
 bool System_impl::get_multiSite() {

@@ -84,26 +84,40 @@ public:
     return send_object(patch_data, "patch_del", "patch");
   }
 
-  // int system_adjacent(std::vector<System *> systems) {
-  //   boost::property_tree::ptree nodes;
+  int system_adjacent(std::vector<System *> systems) {
+    boost::property_tree::ptree nodes;
 
-  //   for (std::vector<System *>::iterator it = systems.begin(); it != systems.end(); it++) {
-  //     System *system = *it;
-  //     boost::property_tree::ptree statuses;
-  //     std::map<std::string, AdjacentStatus> adjacent_statuses = system->get_adjacent_status();
-  //     for (std::map<std::string, AdjacentStatus>::iterator it = adjacent_statuses.begin(); it != adjacent_statuses.end(); it++) {
-  //       boost::property_tree::ptree status;
-  //       status.put("lra", it->second.lra);
-  //       status.put("sys_id", it->second.sys_id);
-  //       status.put("rfss", it->second.rfss);
-  //       status.put("site", it->second.site);
-  //       statuses.push_back(std::make_pair("", status));
-  //     }
-  //     nodes.push_back(std::make_pair("", statuses));
-  //   }
+    for (std::vector<System *>::iterator it = systems.begin(); it != systems.end(); it++) {
+      System *system = *it;
+      boost::property_tree::ptree statuses;
+      std::map<std::string, AdjacentStatus> adjacent_statuses = system->get_adjacent_status();
+      for (std::map<std::string, AdjacentStatus>::iterator it = adjacent_statuses.begin(); it != adjacent_statuses.end(); it++) {
+        boost::property_tree::ptree status;
+        status.put("lra", it->second.lra);
+        status.put("sys_id", it->second.sys_id);
+        status.put("rfss", it->second.rfss);
+        status.put("site", it->second.site);
+        status.put("freq_band", it->second.freq_band);
+        status.put("ch_num", it->second.ch_num);
+        status.put("freq", it->second.freq);
+        status.put("conv_ch", it->second.conv_ch);
+        status.put("site_failed", it->second.site_failed);
+        status.put("valid_info", it->second.valid_info);
+        status.put("active_conn", it->second.active_conn);
+        status.put("composite_ctrl", it->second.composite_ctrl);
+        status.put("no_service_req", it->second.no_service_req);
+        status.put("backup_ctrl", it->second.backup_ctrl);
+        status.put("supports_data", it->second.supports_data);
+        status.put("supports_voice", it->second.supports_voice);
+        status.put("supports_registration", it->second.supports_registration);
+        status.put("supports_authentication", it->second.supports_authentication);
+        statuses.push_back(std::make_pair("", status));
+      }
+      nodes.push_back(std::make_pair("", statuses));
+    }
 
-  //   return send_object(nodes, "adjacent", "adjacent");
-  // }
+    return send_object(nodes, "adjacent", "adjacent");
+  }
 
   Stat_Socket() : m_open(false), m_done(false), m_config_sent(false) {
     // set up access channels to only log interesting things

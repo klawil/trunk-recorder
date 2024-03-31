@@ -227,6 +227,10 @@ public:
   void delete_talkgroup_patch(PatchData f_data);
   void clear_stale_talkgroup_patches();
 
+  std::map<std::string, AdjacentStatus> adjacent_statuses;
+  void adjacent_status(AdjacentStatus adjacent_status);
+  std::map<std::string, AdjacentStatus> get_adjacent_status();
+
   bool get_multiSite();
   void set_multiSite(bool multiSite);
 
