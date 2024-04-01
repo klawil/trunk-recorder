@@ -531,6 +531,7 @@ boost::property_tree::ptree System_impl::get_stats_current(float timeDiff) {
   boost::property_tree::ptree system_node;
   system_node.put("id", this->get_sys_num());
   system_node.put("decoderate", this->message_count / timeDiff);
+  system_node.put("shortname", this->get_short_name());
 
   return system_node;
 }
