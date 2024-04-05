@@ -698,6 +698,9 @@ void handle_message(std::vector<TrunkMessage> messages, System *sys) {
 
     case SYSID:
       current_system_sysid(message, sys);
+      if (message.adjacent_status.rfss != 0 || message.adjacent_status.site != 0) {
+        sys->adjacent_status(message.adjacent_status);
+      }
       break;
 
     case STATUS:
@@ -728,7 +731,9 @@ void handle_message(std::vector<TrunkMessage> messages, System *sys) {
       break;
 
     case ADJACENT_STATUS:
-      sys->adjacent_status(message.adjacent_status);
+      if (message.adjacent_status.rfss != 0 || message.adjacent_status.site != 0) {
+        sys->adjacent_status(message.adjacent_status);
+      }
       break;
 
     case UNKNOWN:

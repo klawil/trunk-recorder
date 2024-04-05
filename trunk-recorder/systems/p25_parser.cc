@@ -109,6 +109,10 @@ std::vector<TrunkMessage> P25Parser::decode_mbt_data(unsigned long opcode, boost
   message.tdma_slot = 0;
   message.freq = 0;
   message.opcode = opcode;
+  AdjacentStatus adj_status_empty;
+  adj_status_empty.rfss = 0;
+  adj_status_empty.site = 0;
+  message.adjacent_status = adj_status_empty;
 
   BOOST_LOG_TRIVIAL(debug) << "decode_mbt_data: $" << opcode;
   if (opcode == 0x0) { // grp voice channel grant
@@ -285,6 +289,10 @@ std::vector<TrunkMessage> P25Parser::decode_tsbk(boost::dynamic_bitset<> &tsbk, 
   message.tdma_slot = 0;
   message.freq = 0;
   message.opcode = opcode;
+  AdjacentStatus adj_status_empty;
+  adj_status_empty.rfss = 0;
+  adj_status_empty.site = 0;
+  message.adjacent_status = adj_status_empty;
 
   BOOST_LOG_TRIVIAL(trace) << "TSBK: opcode: $" << std::hex << opcode;
   if (opcode == 0x00) { // group voice chan grant
@@ -855,11 +863,52 @@ std::vector<TrunkMessage> P25Parser::decode_tsbk(boost::dynamic_bitset<> &tsbk, 
     unsigned long rfid = bitset_shift_mask(tsbk, 48, 0xff);
     unsigned long stid = bitset_shift_mask(tsbk, 40, 0xff);
     unsigned long chan = bitset_shift_mask(tsbk, 24, 0xffff);
+    unsigned long f1 = channel_id_to_frequency(chan, sys_num);
     message.message_type = SYSID;
     message.sys_id = syid;
     message.sys_rfss = rfid;
     message.sys_site_id = stid;
     os << "tsbk3a rfss status: syid: " << syid << " rfid " << rfid << " stid " << stid << " ch1 " << chan << "(" << channel_id_to_string(chan, sys_num) << ")";
+
+    unsigned long lra = bitset_shift_mask(tsbk, 72, 0xff);
+    bool conv_ch = bitset_shift_mask(tsbk, 71, 0x1) == 0x1;
+    bool site_failed = bitset_shift_mask(tsbk, 70, 0x1) == 0x1;
+    bool valid_info = bitset_shift_mask(tsbk, 69, 0x1) == 0x1;
+    bool active_conn = bitset_shift_mask(tsbk, 68, 0x1) == 0x1;
+    unsigned long sys_id = bitset_shift_mask(tsbk, 56, 0xfff);
+    unsigned long rfss = bitset_shift_mask(tsbk, 48, 0xff);
+    unsigned long site = bitset_shift_mask(tsbk, 40, 0xff);
+    unsigned long freq_band = bitset_shift_mask(tsbk, 36, 0xf);
+    unsigned long ch_num = bitset_shift_mask(tsbk, 24, 0xfff);
+    bool composite_ctrl = bitset_shift_mask(tsbk, 16, 0x01) == 0x01;
+    bool no_service_req = bitset_shift_mask(tsbk, 16, 0x02) == 0x02;
+    bool backup_ctrl = bitset_shift_mask(tsbk, 16, 0x04) == 0x04;
+    bool data = bitset_shift_mask(tsbk, 16, 0x10) == 0x10;
+    bool voice = bitset_shift_mask(tsbk, 16, 0x20) == 0x20;
+    bool registration = bitset_shift_mask(tsbk, 16, 0x40) == 0x40;
+    bool authentication = bitset_shift_mask(tsbk, 16, 0x80) == 0x80;
+    
+    AdjacentStatus adjacent_status;
+    adjacent_status.lra = lra;
+    adjacent_status.sys_id = sys_id;
+    adjacent_status.rfss = rfss;
+    adjacent_status.site = site;
+    adjacent_status.freq_band = freq_band;
+    adjacent_status.ch_num = ch_num;
+    adjacent_status.freq = f1;
+    adjacent_status.conv_ch = conv_ch;
+    adjacent_status.site_failed = site_failed;
+    adjacent_status.valid_info = valid_info;
+    adjacent_status.active_conn = active_conn;
+    adjacent_status.composite_ctrl = composite_ctrl;
+    adjacent_status.no_service_req = no_service_req;
+    adjacent_status.backup_ctrl = backup_ctrl;
+    adjacent_status.supports_data = data;
+    adjacent_status.supports_voice = voice;
+    adjacent_status.supports_registration = registration;
+    adjacent_status.supports_authentication = authentication;
+    message.adjacent_status = adjacent_status;
+
     message.meta = os.str();
     BOOST_LOG_TRIVIAL(debug) << os.str();
   } else if (opcode == 0x3b) { // network status
@@ -994,6 +1043,10 @@ std::vector<TrunkMessage> P25Parser::parse_message(gr::message::sptr msg, System
   message.opcode = 255;
   message.source = -1;
   message.sys_num = sys_num;
+  AdjacentStatus adj_status_empty;
+  adj_status_empty.rfss = 0;
+  adj_status_empty.site = 0;
+  message.adjacent_status = adj_status_empty;
   if (type == -2) { // # request from gui
     std::string cmd = msg->to_string();
 

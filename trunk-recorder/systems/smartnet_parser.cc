@@ -122,6 +122,10 @@ std::vector<TrunkMessage> SmartnetParser::parse_message(std::string s,
   message.sys_num = system->get_sys_num();
   message.emergency = false;
   message.opcode = 0;
+  AdjacentStatus adj_status_empty;
+  adj_status_empty.rfss = 0;
+  adj_status_empty.site = 0;
+  message.adjacent_status = adj_status_empty;
 
   std::vector<std::string> x;
   boost::split(x, s, boost::is_any_of(","), boost::token_compress_on);

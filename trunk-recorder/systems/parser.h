@@ -74,7 +74,6 @@ struct TrunkMessage {
   PatchData patch_data;
   unsigned long opcode;
   AdjacentStatus adjacent_status;
-  
 };
 
 class TrunkParser {
