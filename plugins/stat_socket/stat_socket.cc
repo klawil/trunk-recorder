@@ -102,6 +102,7 @@ public:
       std::map<std::string, AdjacentStatus> adjacent_statuses = system->get_adjacent_status();
       for (std::map<std::string, AdjacentStatus>::iterator it = adjacent_statuses.begin(); it != adjacent_statuses.end(); it++) {
         boost::property_tree::ptree status;
+        status.put("time", it->second.time);
         status.put("lra", it->second.lra);
         status.put("sys_shortname", system->get_short_name());
         status.put("sys_id", it->second.sys_id);

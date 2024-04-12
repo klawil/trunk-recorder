@@ -32,6 +32,7 @@ struct PatchData {
 };
 
 struct AdjacentStatus {
+  unsigned long time;
   unsigned long lra;
   unsigned long sys_id;
   unsigned long rfss;

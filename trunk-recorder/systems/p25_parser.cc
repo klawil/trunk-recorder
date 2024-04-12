@@ -889,6 +889,7 @@ std::vector<TrunkMessage> P25Parser::decode_tsbk(boost::dynamic_bitset<> &tsbk, 
     bool authentication = bitset_shift_mask(tsbk, 16, 0x80) == 0x80;
     
     AdjacentStatus adjacent_status;
+    adjacent_status.time = (long)std::time(0);
     adjacent_status.lra = lra;
     adjacent_status.sys_id = sys_id;
     adjacent_status.rfss = rfss;
@@ -956,6 +957,7 @@ std::vector<TrunkMessage> P25Parser::decode_tsbk(boost::dynamic_bitset<> &tsbk, 
 
     message.message_type = ADJACENT_STATUS;
     AdjacentStatus adjacent_status;
+    adjacent_status.time = (long)std::time(0);
     adjacent_status.lra = lra;
     adjacent_status.sys_id = sys_id;
     adjacent_status.rfss = rfss;
